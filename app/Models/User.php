@@ -1,0 +1,65 @@
+<?php
+
+namespace App\Models;
+
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use App\Enums\UserRole;
+
+#[Fillable(['name', 'email', 'password', 'role', 'departemen'])]
+#[Hidden(['password', 'remember_token'])]
+class User extends Authenticatable
+{
+    /** @use HasFactory<UserFactory> */
+    use HasFactory, Notifiable;
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+            'role' => UserRole::class,
+        ];
+    }
+
+    public function hasRole(UserRole ...$roles): bool
+    {
+        return in_array($this->role, $roles, true);
+    }
+
+    public function createdSops(): HasMany
+    {
+        return $this->hasMany(Sop::class, 'created_by');
+    }
+
+    public function approvedSops(): HasMany
+    {
+        return $this->hasMany(Sop::class, 'approved_by');
+    }
+
+    public function sopLogs(): HasMany
+    {
+        return $this->hasMany(SopLog::class);
+    }
+
+    public function acknowledgments(): HasMany
+    {
+        return $this->hasMany(SopAcknowledgment::class);
+    }
+
+    public function reports(): HasMany
+    {
+        return $this->hasMany(SopReport::class);
+    }
+}
