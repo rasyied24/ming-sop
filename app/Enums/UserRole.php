@@ -18,4 +18,26 @@ enum UserRole: string
             self::Auditor => 'Auditor / HRD',
         };
     }
+
+    public function homeRoute(): string
+    {
+        return match ($this) {
+            self::Employee => 'sops.index',
+            self::PicSop => 'sops.manage',
+            self::Manager => 'dashboard',
+            self::Auditor => 'compliance',
+        };
+    }
+
+    public function navigation(): array
+    {
+        $sops = ['label' => 'Daftar SOP', 'route' => 'sops.index'];
+
+        return match ($this) {
+            self::Employee => [$sops],
+            self::PicSop => [$sops, ['label' => 'Kelola SOP', 'route' => 'sops.manage']],
+            self::Manager => [['label' => 'Dashboard', 'route' => 'dashboard'], $sops],
+            self::Auditor => [['label' => 'Kepatuhan', 'route' => 'compliance'], $sops],
+        };
+    }
 }
