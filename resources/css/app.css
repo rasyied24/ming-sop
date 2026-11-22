@@ -3,7 +3,28 @@
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
+
+/* Tampilan isi SOP (hasil render Markdown) */
+.sop-content h2 { margin-top: 1.5rem; margin-bottom: 0.5rem; font-size: 1.125rem; font-weight: 600; }
+.sop-content h2:first-child { margin-top: 0; }
+.sop-content p { margin-top: 0.5rem; line-height: 1.7; }
+.sop-content ul { margin-top: 0.5rem; list-style: disc; padding-left: 1.5rem; }
+.sop-content ol { margin-top: 0.5rem; list-style: decimal; padding-left: 1.5rem; }
+.sop-content li { margin-top: 0.25rem; line-height: 1.7; }
+.sop-content strong { font-weight: 600; }
+.sop-content blockquote { margin-top: 1rem; border-left: 4px solid #cbd5e1; padding-left: 1rem; color: #64748b; }
+
+/* Warna utama aplikasi (biru, mengikuti mockup) */
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --color-brand-50: #f0f9ff;
+    --color-brand-100: #e0f2fe;
+    --color-brand-200: #bae6fd;
+    --color-brand-300: #7dd3fc;
+    --color-brand-400: #38bdf8;
+    --color-brand-500: #0ea5e9;
+    --color-brand-600: #0284c7;
+    --color-brand-700: #0369a1;
 }
+
+/* Elemen Alpine yang disembunyikan sampai Alpine siap */
+[x-cloak] { display: none !important; }

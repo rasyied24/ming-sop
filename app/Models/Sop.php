@@ -28,6 +28,17 @@ class Sop extends Model
         'status' => 'draft',
     ];
 
+    public const CATEGORIES = ['HRD', 'Keuangan', 'IT', 'Operasional'];
+
+    public function nextVersion(bool $major = false): string
+    {
+        [$majorNumber, $minorNumber] = array_pad(array_map('intval', explode('.', $this->version)), 2, 0);
+
+        return $major
+            ? ($majorNumber + 1).'.0'
+            : $majorNumber.'.'.($minorNumber + 1);
+    }
+
     protected function casts(): array
     {
         return [

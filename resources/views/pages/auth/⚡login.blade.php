@@ -42,6 +42,8 @@ class extends Component {
         RateLimiter::clear($this->throttleKey());
         session()->regenerate();
 
+        session()->forget('url.intended');
+
         $this->redirectIntended(default: route(auth()->user()->role->homeRoute()));
     }
 
@@ -69,7 +71,7 @@ class extends Component {
     <div>
         <label for="email" class="block text-sm font-medium text-slate-700">Email</label>
         <input id="email" type="email" wire:model="email" autocomplete="email" autofocus
-               class="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+               class="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
         @error('email')
             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
         @enderror
@@ -78,7 +80,7 @@ class extends Component {
     <div>
         <label for="password" class="block text-sm font-medium text-slate-700">Kata Sandi</label>
         <input id="password" type="password" wire:model="password" autocomplete="current-password"
-               class="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+               class="mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
         @error('password')
             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
         @enderror
@@ -90,7 +92,7 @@ class extends Component {
     </label>
 
     <button type="submit"
-            class="w-full rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-60"
+            class="w-full rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-500 disabled:opacity-60"
             wire:loading.attr="disabled">
         <span wire:loading.remove>Masuk</span>
         <span wire:loading>Memproses...</span>

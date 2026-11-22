@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Enums\UserRole;
+use Illuminate\Support\Str;
 
 #[Fillable(['name', 'email', 'password', 'role', 'departemen'])]
 #[Hidden(['password', 'remember_token'])]
@@ -31,6 +32,16 @@ class User extends Authenticatable
             'password' => 'hashed',
             'role' => UserRole::class,
         ];
+    }
+
+    public function initials(): string
+    {
+        return Str::of($this->name)
+            ->explode(' ')
+            ->filter()
+            ->take(2)
+            ->map(fn (string $word) => Str::upper(Str::substr($word, 0, 1)))
+            ->implode('');
     }
 
     public function hasRole(UserRole ...$roles): bool

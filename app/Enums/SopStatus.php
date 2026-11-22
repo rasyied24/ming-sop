@@ -12,10 +12,15 @@ enum SopStatus: string
     public function label(): string
     {
         return match ($this) {
-            self::Draft => 'Draf',
-            self::Review => 'Menunggu Persetujuan',
-            self::Published => 'Terbit',
-            self::Archived => 'Diarsipkan',
+            self::Draft => 'Draft',
+            self::Review => 'Review',
+            self::Published => 'Published',
+            self::Archived => 'Archived',
         };
+    }
+
+    public function tabLabel(): string
+    {
+        return $this === self::Review ? 'Review / Pending' : $this->label();
     }
 }
