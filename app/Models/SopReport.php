@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ReportStatus;
+use App\Enums\ReportType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -11,6 +12,7 @@ class SopReport extends Model
     protected $fillable = [
         'sop_id',
         'user_id',
+        'type',
         'subject',
         'message',
         'status',
@@ -23,6 +25,7 @@ class SopReport extends Model
     protected function casts(): array
     {
         return [
+            'type' => ReportType::class,
             'status' => ReportStatus::class,
         ];
     }
