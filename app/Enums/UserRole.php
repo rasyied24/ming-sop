@@ -29,15 +29,42 @@ enum UserRole: string
         };
     }
 
+        /**
+     * Menu sidebar per role. 'active' berisi nama route yang membuat menu tampil aktif.
+     *
+     * @return array<int, array{label: string, route: string, icon: string, active: array<int, string>}>
+     */
     public function navigation(): array
     {
-        $sops = ['label' => 'Daftar SOP', 'route' => 'sops.index'];
+        // PIC SOP dan Manager bekerja dari Direktori, jadi detail SOP dihitung bagian dari Direktori.
+        $usesDirectory = in_array($this, [self::PicSop, self::Manager], true);
+
+        $list = [
+            'label' => 'Daftar SOP',
+            'route' => 'sops.index',
+            'icon' => 'document-text',
+            'active' => $usesDirectory ? ['sops.index'] : ['sops.index', 'sops.show'],
+        ];
+
+        $directory = [
+            'label' => 'Direktori SOP',
+            'route' => 'sops.manage',
+            'icon' => 'folder',
+            'active' => ['sops.manage', 'sops.create', 'sops.edit', 'sops.show'],
+        ];
 
         return match ($this) {
-            self::Employee => [$sops],
-            self::PicSop => [$sops, ['label' => 'Kelola SOP', 'route' => 'sops.manage']],
-            self::Manager => [['label' => 'Dashboard', 'route' => 'dashboard'], $sops],
-            self::Auditor => [['label' => 'Kepatuhan', 'route' => 'compliance'], $sops],
+            self::Employee => [$list],
+            self::PicSop => [$directory],
+            self::Manager => [
+                ['label' => 'Dashboard', 'route' => 'dashboard', 'icon' => 'home', 'active' => ['dashboard']],
+                ['label' => 'Pengajuan & Persetujuan', 'route' => 'approvals.index', 'icon' => 'check-circle', 'active' => ['approvals.index']],
+                $directory,
+            ],
+            self::Auditor => [
+                ['label' => 'Kepatuhan', 'route' => 'compliance', 'icon' => 'shield-check', 'active' => ['compliance']],
+                $list,
+            ],
         };
     }
 }
