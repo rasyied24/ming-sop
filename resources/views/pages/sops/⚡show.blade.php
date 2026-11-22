@@ -306,6 +306,20 @@ new #[Title('Detail SOP')] class extends Component {
         </div>
     @endcan
 
+    {{-- Karyawan: laporkan masalah pada SOP ini --}}
+    @can('create', \App\Models\SopReport::class)
+        <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+            <h2 class="font-semibold">Menemukan masalah pada SOP ini?</h2>
+            <p class="mt-1 text-sm text-slate-500">
+                Laporkan ketidaksesuaian di lapangan, kendala penerapan, atau dugaan pelanggaran.
+            </p>
+            <a href="{{ route('reports.create', ['sop' => $sop->id]) }}" wire:navigate
+               class="mt-4 inline-block rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium hover:bg-slate-50">
+                Laporkan Masalah
+            </a>
+        </div>
+    @endcan
+
     @can('viewHistory', $sop)
         <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
             <h2 class="text-lg font-semibold">Riwayat Perubahan</h2>

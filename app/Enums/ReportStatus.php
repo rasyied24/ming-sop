@@ -16,4 +16,18 @@ enum ReportStatus: string
             self::Resolved => 'Selesai',
         };
     }
+
+    /**
+     * Status tujuan yang boleh dipilih dari status ini.
+     *
+     * @return array<int, self>
+     */
+    public function allowedNext(): array
+    {
+        return match ($this) {
+            self::Pending => [self::InProgress, self::Resolved],
+            self::InProgress => [self::Resolved],
+            self::Resolved => [self::InProgress],
+        };
+    }
 }

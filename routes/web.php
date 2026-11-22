@@ -18,6 +18,15 @@ Route::middleware('auth')->group(function () {
     Route::livewire('/sops', 'pages::sops.index')->name('sops.index');
     Route::livewire('/sops/{sop}', 'pages::sops.show')->name('sops.show');
 
+    // Detail laporan: karyawan hanya laporannya sendiri, Auditor semua (diatur Policy).
+    Route::livewire('/laporan/{report}', 'pages::reports.show')->name('reports.show');
+
+    // Karyawan: membuat dan melihat laporan sendiri.
+    Route::middleware('role:employee')->group(function () {
+        Route::livewire('/laporan-saya', 'pages::reports.index')->name('reports.index');
+        Route::livewire('/laporan-saya/buat', 'pages::reports.create')->name('reports.create');
+    });
+
     // PIC SOP dan Manager: direktori seluruh SOP. Tombol aksi di dalamnya mengikuti Policy.
     Route::livewire('/direktori-sop', 'pages::sops.manage')
         ->middleware('role:pic_sop,manager')
@@ -36,7 +45,8 @@ Route::middleware('auth')->group(function () {
     });
 
     // Auditor / HRD.
-    Route::livewire('/kepatuhan', 'pages::compliance')
-        ->middleware('role:auditor')
-        ->name('compliance');
+    Route::middleware('role:auditor')->group(function () {
+        Route::livewire('/kepatuhan', 'pages::compliance')->name('compliance');
+        Route::livewire('/laporan-masuk', 'pages::reports.inbox')->name('reports.inbox');
+    });
 });

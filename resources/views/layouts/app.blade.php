@@ -7,7 +7,27 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-slate-50 text-slate-800 antialiased" x-data="{ sidebarOpen: false }">
-    @php($user = auth()->user())
+    @php
+        $user = auth()->user();
+        $usesDirectory = $user->hasRole(\App\Enums\UserRole::PicSop, \App\Enums\UserRole::Manager);
+        $fallback = $usesDirectory ? 'sops.manage' : 'sops.index';
+
+        $currentRoute = request()->route()?->getName();
+
+        // Detail SOP bisa dibuka dari beberapa halaman. Menu yang menyala mengikuti asalnya (?from=).
+        if ($currentRoute === 'sops.show') {
+            $currentRoute = match (request()->query('from')) {
+                'persetujuan' => $user->hasRole(\App\Enums\UserRole::Manager) ? 'approvals.index' : $fallback,
+                'daftar' => 'sops.index',
+                default => $fallback,
+            };
+        }
+
+        // Detail laporan: Auditor menyorot Laporan Masuk, karyawan menyorot Laporan Saya.
+        if ($currentRoute === 'reports.show') {
+            $currentRoute = $user->hasRole(\App\Enums\UserRole::Auditor) ? 'reports.inbox' : 'reports.index';
+        }
+    @endphp
 
     {{-- Top bar --}}
     <header class="fixed inset-x-0 top-0 z-40 flex h-16 items-center justify-between bg-slate-800 px-4 text-white">
@@ -44,7 +64,7 @@
            :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
         <nav class="flex-1 space-y-1 overflow-y-auto px-3 py-4">
             @foreach ($user->role->navigation() as $item)
-                @php($active = request()->routeIs(...$item['active']))
+                @php($active = in_array($currentRoute, $item['active'], true))
 
                 <a href="{{ route($item['route']) }}" wire:navigate
                    @class([

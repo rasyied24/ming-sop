@@ -54,7 +54,10 @@ enum UserRole: string
         ];
 
         return match ($this) {
-            self::Employee => [$list],
+            self::Employee => [
+                $list,
+                ['label' => 'Laporan Saya', 'route' => 'reports.index', 'icon' => 'exclamation-triangle', 'active' => ['reports.index', 'reports.create']],
+            ],
             self::PicSop => [$directory],
             self::Manager => [
                 ['label' => 'Dashboard', 'route' => 'dashboard', 'icon' => 'home', 'active' => ['dashboard']],
@@ -63,6 +66,7 @@ enum UserRole: string
             ],
             self::Auditor => [
                 ['label' => 'Kepatuhan', 'route' => 'compliance', 'icon' => 'shield-check', 'active' => ['compliance']],
+                ['label' => 'Laporan Masuk', 'route' => 'reports.inbox', 'icon' => 'inbox', 'active' => ['reports.inbox']],
                 $list,
             ],
         };
