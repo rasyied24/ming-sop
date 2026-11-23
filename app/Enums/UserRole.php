@@ -34,23 +34,27 @@ enum UserRole: string
      *
      * @return array<int, array{label: string, route: string, icon: string, active: array<int, string>}>
      */
+        /**
+     * Menu sidebar per role. 'active' berisi nama route yang membuat menu tampil aktif.
+     * Halaman detail SOP (sops.show) dan detail laporan (reports.show) ditangani layout
+     * karena menu aktifnya bergantung pada asal klik atau role.
+     *
+     * @return array<int, array{label: string, route: string, icon: string, active: array<int, string>}>
+     */
     public function navigation(): array
     {
-        // PIC SOP dan Manager bekerja dari Direktori, jadi detail SOP dihitung bagian dari Direktori.
-        $usesDirectory = in_array($this, [self::PicSop, self::Manager], true);
-
         $list = [
             'label' => 'Daftar SOP',
             'route' => 'sops.index',
             'icon' => 'document-text',
-            'active' => $usesDirectory ? ['sops.index'] : ['sops.index', 'sops.show'],
+            'active' => ['sops.index'],
         ];
 
         $directory = [
             'label' => 'Direktori SOP',
             'route' => 'sops.manage',
             'icon' => 'folder',
-            'active' => ['sops.manage', 'sops.create', 'sops.edit', 'sops.show'],
+            'active' => ['sops.manage', 'sops.create', 'sops.edit'],
         ];
 
         return match ($this) {
@@ -65,7 +69,7 @@ enum UserRole: string
                 $directory,
             ],
             self::Auditor => [
-                ['label' => 'Kepatuhan', 'route' => 'compliance', 'icon' => 'shield-check', 'active' => ['compliance']],
+                ['label' => 'Kepatuhan', 'route' => 'compliance', 'icon' => 'shield-check', 'active' => ['compliance', 'compliance.show']],
                 ['label' => 'Laporan Masuk', 'route' => 'reports.inbox', 'icon' => 'inbox', 'active' => ['reports.inbox']],
                 $list,
             ],

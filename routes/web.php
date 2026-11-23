@@ -46,7 +46,8 @@ Route::middleware('auth')->group(function () {
 
     // Auditor / HRD.
     Route::middleware('role:auditor')->group(function () {
-        Route::livewire('/kepatuhan', 'pages::compliance')->name('compliance');
+        Route::livewire('/kepatuhan', 'pages::compliance.index')->name('compliance');
+        Route::livewire('/kepatuhan/{sop}', 'pages::compliance.show')->name('compliance.show');
         Route::livewire('/laporan-masuk', 'pages::reports.inbox')->name('reports.inbox');
     });
 });
