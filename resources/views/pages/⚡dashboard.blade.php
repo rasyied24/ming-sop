@@ -7,6 +7,7 @@ use App\Enums\UserRole;
 use App\Models\Sop;
 use App\Models\SopReport;
 use App\Services\ComplianceReport;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -50,19 +51,35 @@ new #[Title('Dashboard')] class extends Component {
             ->get();
     }
 
+    /**
+     * Jumlah laporan belum selesai per status. Total kartu dan rincian di kartu berasal dari sini,
+     * jadi keduanya tidak mungkin berbeda.
+     *
+     * @return array<string, int>
+     */
     #[Computed]
-    public function openReportsCount(): int
+    public function openReportBreakdown(): array
     {
-        return SopReport::query()
+        return DB::table('sop_reports')
             ->whereIn('status', [ReportStatus::Pending->value, ReportStatus::InProgress->value])
-            ->count();
+            ->selectRaw('status, count(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status')
+            ->all();
     }
 
     #[Computed]
-    public function recentReports()
+    public function openReports()
     {
         // Sengaja tidak memuat relasi pelapor: Manager tidak perlu melihat identitas.
-        return SopReport::query()->with('sop')->latest()->limit(5)->get();
+        return SopReport::query()
+            ->with('sop')
+            ->whereIn('status', [ReportStatus::Pending->value, ReportStatus::InProgress->value])
+            // Yang belum ditangani di atas, lalu yang terbaru.
+            ->orderByRaw("case status when 'pending' then 0 else 1 end")
+            ->latest()
+            ->limit(5)
+            ->get();
     }
 };
 ?>
@@ -70,6 +87,12 @@ new #[Title('Dashboard')] class extends Component {
 @php
     $overall = $this->compliance['overall'];
     $lowest = $this->compliance['perSop']->sortBy('percentage')->take(5);
+
+    $breakdown = $this->openReportBreakdown;
+    $pendingTotal = $breakdown[ReportStatus::Pending->value] ?? 0;
+    $progressTotal = $breakdown[ReportStatus::InProgress->value] ?? 0;
+    $openTotal = $pendingTotal + $progressTotal;
+    $shown = $this->openReports->count();
 @endphp
 
 <div class="space-y-6">
@@ -90,8 +113,8 @@ new #[Title('Dashboard')] class extends Component {
                      icon="shield-check" tone="emerald"
                      :hint="$overall['acknowledged'].' dari '.$overall['expected'].' konfirmasi karyawan'" />
 
-        <x-stat-card label="Laporan Belum Selesai" :value="$this->openReportsCount" icon="exclamation-triangle" tone="rose"
-                     hint="Status Menunggu atau Diproses" />
+        <x-stat-card label="Laporan Belum Selesai" :value="$openTotal" icon="exclamation-triangle" tone="rose"
+                     :hint="$pendingTotal.' menunggu · '.$progressTotal.' diproses'" />
     </div>
 
     <div class="grid gap-6 lg:grid-cols-2">
@@ -146,11 +169,13 @@ new #[Title('Dashboard')] class extends Component {
         </div>
     </div>
 
-    {{-- Laporan terbaru --}}
+    {{-- Laporan belum selesai --}}
     <div class="overflow-x-auto rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
         <div class="px-6 pt-6">
-            <h2 class="font-semibold">Laporan Masuk Terbaru</h2>
-            <p class="mt-1 text-xs text-slate-500">Ringkasan saja. Penanganan dilakukan oleh tim Auditor/HRD.</p>
+            <h2 class="font-semibold">Laporan Belum Selesai</h2>
+            <p class="mt-1 text-xs text-slate-500">
+                Laporan berstatus Menunggu atau Diproses. Penanganan dilakukan oleh tim Auditor/HRD.
+            </p>
         </div>
 
         <table class="mt-4 min-w-full divide-y divide-slate-200 text-sm">
@@ -165,7 +190,7 @@ new #[Title('Dashboard')] class extends Component {
             </thead>
 
             <tbody class="divide-y divide-slate-100">
-                @forelse ($this->recentReports as $report)
+                @forelse ($this->openReports as $report)
                     <tr wire:key="report-{{ $report->id }}">
                         <td class="max-w-sm px-6 py-3 font-medium text-slate-800">{{ $report->subject }}</td>
                         <td class="px-4 py-3"><x-report-type-badge :type="$report->type" /></td>
@@ -175,10 +200,19 @@ new #[Title('Dashboard')] class extends Component {
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-10 text-center text-slate-500">Belum ada laporan masuk.</td>
+                        <td colspan="5" class="px-6 py-10 text-center text-slate-500">Tidak ada laporan yang belum selesai.</td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
+
+        @if ($openTotal > 0)
+            <p class="border-t border-slate-200 px-6 py-3 text-xs text-slate-500">
+                Menampilkan {{ $shown }} dari {{ $openTotal }} laporan.
+                @if ($openTotal > $shown)
+                    Sisanya hanya dapat dibuka oleh Auditor/HRD.
+                @endif
+            </p>
+        @endif
     </div>
 </div>
