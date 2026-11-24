@@ -65,6 +65,8 @@ Data demo berisi SOP di semua status, riwayat perubahan, konfirmasi baca dengan 
 
 Skenario presentasi ada di [docs/DEMO.md](docs/DEMO.md).
 
+Penjelasan asumsi, pilihan teknis, bagian yang selesai dan belum, serta rencana lanjutan ada di [docs/PENJELASAN.md](docs/PENJELASAN.md).
+
 ## Struktur dan keputusan desain
 
 ```
@@ -102,3 +104,14 @@ php artisan test
 ```
 
 Tes menolak berjalan di database selain `ming_sop_testing` agar data kerja tidak terhapus.
+
+## Tangkapan layar
+
+| | |
+|---|---|
+| ![Login](docs/screenshots/01-login.png) | ![Daftar SOP](docs/screenshots/02-daftar-sop.png) |
+| ![Direktori SOP](docs/screenshots/04-direktori-sop.png) | ![Keputusan Manager](docs/screenshots/06-keputusan-manager.png) |
+| ![Dashboard](docs/screenshots/08-dashboard.png) | ![Kepatuhan](docs/screenshots/09-kepatuhan.png) |
+| ![Rincian kepatuhan](docs/screenshots/10-rincian-kepatuhan.png) | ![Form laporan](docs/screenshots/11-form-laporan.png) |
+
+Seluruh tangkapan layar ada di [docs/screenshots](docs/screenshots).
