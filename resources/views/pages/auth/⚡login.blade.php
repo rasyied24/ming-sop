@@ -121,17 +121,6 @@ class extends Component {
             @enderror
         </div>
 
-        {{-- Ingat saya + lupa kata sandi --}}
-        <div class="flex items-center justify-between">
-            <label class="flex items-center gap-2 text-sm text-slate-600">
-                <input type="checkbox" wire:model="remember" class="rounded border-slate-300">
-                Ingat Saya
-            </label>
-
-            {{-- Ganti href dengan route('password.request') jika sudah ada --}}
-            <a href="#" class="text-sm font-medium text-brand-600 hover:text-brand-500">Lupa Kata Sandi?</a>
-        </div>
-
         <button type="submit"
                 class="flex w-full items-center justify-center gap-2 rounded-md bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-500 disabled:opacity-60"
                 wire:loading.attr="disabled">
