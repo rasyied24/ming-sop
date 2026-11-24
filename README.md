@@ -1,58 +1,104 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# MING SOP
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplikasi web internal untuk mengelola dokumen SOP (Standard Operating Procedure) perusahaan: dari penyusunan draf, peninjauan, penerbitan, sampai memastikan karyawan benar-benar sudah membacanya.
 
-## About Laravel
+Dibuat sebagai tes teknis Full Stack Programmer, dalam bentuk Expanded MVP.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Fitur utama
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+| Peran | Yang bisa dilakukan |
+|---|---|
+| **Karyawan** | Mencari dan membaca SOP yang berlaku, mengonfirmasi sudah membaca (per versi), melaporkan kendala atau dugaan pelanggaran SOP |
+| **PIC SOP** | Membuat dan mengubah draf, mengajukan ke Manager, merevisi SOP terbit (versi naik minor atau mayor) |
+| **Manager** | Menyetujui atau menolak (dengan catatan revisi) SOP yang diajukan, mengarsipkan SOP, melihat dashboard ringkasan |
+| **Auditor / HRD** | Memantau kepatuhan baca (siapa yang sudah dan belum), menangani laporan masuk |
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Siklus dokumen: `draft` → `review` → `published` → `archived`. Setiap perubahan status tercatat di audit trail (`sop_logs`).
 
-## Learning Laravel
+## Teknologi
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Laravel 13, Livewire 4, Tailwind CSS 4 (Vite), PostgreSQL. Sisi klien memakai Alpine.js yang sudah terbawa Livewire.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Menjalankan di komputer lokal
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+Prasyarat: PHP sesuai `composer.json` (dengan ekstensi `pdo_pgsql`, `mbstring`, `xml`, `curl`, `zip`, `intl`, `bcmath`), Composer, Node.js, dan PostgreSQL.
 
 ```bash
-composer require laravel/boost --dev
+# 1. Dependensi
+composer install
+npm install
 
-php artisan boost:install
+# 2. Konfigurasi
+cp .env.example .env
+php artisan key:generate
+
+# 3. Database (ganti kata sandi sesuai selera, lalu samakan dengan DB_PASSWORD di .env)
+sudo -u postgres psql -c "CREATE USER ming WITH PASSWORD 'ming_secret';"
+sudo -u postgres psql -c "CREATE DATABASE ming_sop OWNER ming;"
+
+# 4. Tabel dan data demo
+php artisan migrate:fresh --seed
+
+# 5. Aset
+npm run build
+
+# 6. Jalankan
+php artisan serve
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Buka `http://127.0.0.1:8000`.
 
-## Contributing
+Pengembangan memakai Nginx dan PHP-FPM, tetapi `php artisan serve` cukup untuk mencoba aplikasi.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Akun demo
 
-## Code of Conduct
+Kata sandi semua akun: `password`.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+| Peran | Email |
+|---|---|
+| Manager | manager@ming.test |
+| PIC SOP | pic.hrd@ming.test, pic.it@ming.test, pic.keuangan@ming.test |
+| Auditor / HRD | auditor@ming.test |
+| Karyawan | ahmad.fauzi@ming.test, lukman.hakim@ming.test, joko.susilo@ming.test, dan 7 akun lain berformat `nama.belakang@ming.test` |
 
-## Security Vulnerabilities
+Data demo berisi SOP di semua status, riwayat perubahan, konfirmasi baca dengan tingkat kepatuhan yang bervariasi, dan beberapa laporan. Ulangi `php artisan migrate:fresh --seed` untuk mengembalikan data awal.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Skenario presentasi ada di [docs/DEMO.md](docs/DEMO.md).
 
-## License
+## Struktur dan keputusan desain
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```
+app/Enums/          Nilai tetap: peran, status SOP, aksi log, status dan jenis laporan
+app/Services/       Aturan bisnis: SopWorkflow, ReportWorkflow, ComplianceReport
+app/Policies/       Hak akses per aksi: SopPolicy, SopReportPolicy
+app/Http/Middleware EnsureUserHasRole (alias "role")
+resources/views/pages/    Halaman (komponen Livewire satu berkas)
+resources/views/layouts/  Layout dengan sidebar
+tests/              Pengujian otomatis
+```
+
+- **Aturan bisnis ada di satu tempat.** Semua perubahan status SOP dan laporan lewat service, dalam satu transaksi database dengan penguncian baris. Dua orang yang bertindak bersamaan pada SOP yang sama tidak bisa saling menimpa, dan log audit tidak mungkin tertinggal.
+- **Keamanan berlapis.** Middleware membatasi halaman per peran, Policy membatasi tiap aksi (juga di dalam service), dan tombol hanya disembunyikan untuk kenyamanan, bukan untuk keamanan.
+- **Konfirmasi baca dicatat per versi.** Saat SOP naik versi, konfirmasi lama tidak berlaku dan karyawan diminta membaca ulang. Persentase kepatuhan dihitung dari konfirmasi atas versi yang berlaku.
+- **Konten SOP berupa Markdown** yang dirender dengan HTML mentah dibuang, untuk mencegah XSS.
+- **Enum PHP** untuk nilai tetap (peran, status), sehingga salah ketik menjadi error, bukan bug diam-diam.
+- **Kolom `type` pada `sop_reports`** ditambahkan lewat migration terpisah di luar skema awal, untuk membedakan kendala SOP, ketidaksesuaian di lapangan, dan dugaan pelanggaran.
+
+## Keterbatasan yang disadari
+
+- Merevisi SOP terbit mengembalikannya ke `draft`, sehingga SOP itu tidak tampil bagi karyawan sampai Manager menyetujui versi baru. Isi versi lama tertimpa. Yang tersimpan adalah nomor versi di log dan siapa yang mengonfirmasi versi mana. Menyimpan salinan isi tiap versi membutuhkan tabel tambahan.
+- Laporan tidak anonim: Auditor melihat nama pelapor, Manager hanya melihat ringkasan.
+- Tidak ada catatan siapa yang menangani laporan, hanya status terkini.
+- Belum ada lampiran PDF, tombol Hapus atau Pulihkan, notifikasi email, tenggat konfirmasi baca, dan ekspor laporan.
+- "Kepatuhan" berarti kepatuhan **membaca** (konfirmasi), bukan bukti bahwa SOP dijalankan.
+
+## Pengujian
+
+Tes memakai database PostgreSQL terpisah (fitur yang dipakai, seperti `ILIKE`, tidak tersedia di SQLite):
+
+```bash
+sudo -u postgres psql -c "CREATE DATABASE ming_sop_testing OWNER ming;"
+php artisan test
+```
+
+Tes menolak berjalan di database selain `ming_sop_testing` agar data kerja tidak terhapus.
