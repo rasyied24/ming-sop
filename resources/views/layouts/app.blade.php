@@ -37,8 +37,8 @@
                 <x-icon name="bars-3" size="size-6" />
             </button>
 
-            <a href="{{ route($user->role->homeRoute()) }}" wire:navigate class="flex items-center gap-2 text-lg font-semibold">
-                <span class="flex size-8 items-center justify-center rounded-lg bg-brand-500 text-sm font-bold">M</span>
+            <a href="{{ route($user->role->homeRoute()) }}" wire:navigate class="flex items-center gap-2.5 text-lg font-semibold">
+                <x-logo size="h-6" />
                 {{ config('app.name') }}
             </a>
         </div>
